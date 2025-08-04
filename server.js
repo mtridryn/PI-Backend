@@ -7,7 +7,7 @@ const { GoogleGenAI } = require('@google/genai');
 const authRoutes = require('./routes/authRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const bookingActivityRoutes = require('./routes/bookingActivityRoutes');
-// const paymentRoutes = require('./routes/paymentRoutes'); // jika sudah ada
+const paymentRoutes = require('./routes/paymentRoutes'); // jika sudah ada
 // const profileRoutes = require('./routes/profileRoutes'); // jika sudah ada
 const pb = require('./pocketbase/pbClient'); // penting untuk akses product_uab
 
@@ -21,7 +21,7 @@ app.use(express.json());
 app.use('/', authRoutes);
 app.use('/booking', bookingRoutes);
 app.use('/booking', bookingActivityRoutes);
-// app.use('/payment', paymentRoutes);   // opsional
+app.use('/payment', paymentRoutes);
 // app.use('/profile', profileRoutes);   // opsional
 
 // Chatbot
