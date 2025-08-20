@@ -12,6 +12,37 @@ const core = new midtransClient.CoreApi({
   serverKey: process.env.MIDTRANS_SERVER_KEY,
   clientKey: process.env.MIDTRANS_CLIENT_KEY
 });
+//Create snap
+exports.createSnapTransaction = async (req, res) => {
+  try {
+    const { booking_id, total, nama, nomortlp } = req.body;
+
+    const parameter = {
+      transaction_details: {
+        order_id: `ORDER-${booking_id}`,
+        gross_amount: total
+      },
+      customer_details: {
+        first_name: nama,
+        phone: nomortlp
+      },
+      callbacks: {
+        finish: `${process.env.FRONTEND_URL}/order-history`
+      }
+    };
+
+    const transaction = await snap.createTransaction(parameter);
+
+    res.status(200).json({
+      message: 'Snap token created',
+      snapToken: transaction.token,
+      redirectUrl: transaction.redirect_url
+    });
+  } catch (error) {
+    console.error('Midtrans error:', error);
+    res.status(500).json({ message: 'Failed to create transaction' });
+  }
+};
 
 // Membuat transaksi Snap Midtrans
 exports.handleNotification = async (req, res) => {
@@ -30,7 +61,7 @@ exports.handleNotification = async (req, res) => {
     if (transactionStatus === 'settlement') {
       const activities = await pb.collection('booking_activities').getFullList({
         filter: `booking_id="${bookingResult.id}"`,
-        expand: 'activity',
+        expand: 'activity, activity.harga, activity.nama_layanan',
       });
 
       const total = activities.reduce((sum, act) => {
@@ -38,7 +69,10 @@ exports.handleNotification = async (req, res) => {
         return sum + harga * act.qty;
       }, 0);
 
-      const activityLabels = activities.map((act) => act.expand?.activity?.nama_layanan || 'unknown');
+      const activityLabels = activities.map((act) => act.activity || 'unknown');
+      console.log('activityLabels:', activityLabels);
+      console.log('total', total);
+      console.log('activities:', activities);
 
       await pb.collection('history_uab').create({
         booking_id: bookingResult.booking_id,

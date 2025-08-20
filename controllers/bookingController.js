@@ -10,7 +10,7 @@ exports.createBooking = async (req, res) => {
       return res.status(400).json({ message: 'Harus memilih tipe transportasi jika memilih Yes' });
     }
 
-    if (data.transport === 'No' && (!data.driver_number || data.driver_number.trim() === '')) {
+    if (data.transport === 'No' && (!data.nomor_driver || data.nomor_driver.trim() === '')) {
       return res.status(400).json({ message: 'Harus mengisi nomor sopir jika tidak memilih transportasi' });
     }
 
