@@ -52,7 +52,7 @@ exports.handleNotification = async (req, res) => {
     const orderId = notification.order_id.replace('ORDER-', '');
     const settlement_time = notification.settlement_time;
 
-    const bookingResult = await pb.collection('booking_uab').getFirstListItem(`booking_id="${orderId}"`);
+    const bookingResult = await pb.collection('booking_uab').getFirstListItem(`id="${orderId}"`);
 
     if (!bookingResult) {
       return res.status(404).json({ message: 'Booking tidak ditemukan' });
@@ -60,8 +60,8 @@ exports.handleNotification = async (req, res) => {
 
     if (transactionStatus === 'settlement') {
       const activities = await pb.collection('booking_activities').getFullList({
-        filter: `booking_id="${bookingResult.id}"`,
-        expand: 'activity, activity.harga, activity.nama_layanan',
+        filter: `booking_id ~ "${bookingResult.id}"`,
+        expand: 'activity',
       });
 
       const total = activities.reduce((sum, act) => {
@@ -69,12 +69,28 @@ exports.handleNotification = async (req, res) => {
         return sum + harga * act.qty;
       }, 0);
 
+      const transportPrices = {
+        "Medium Car": 350000,
+        "HI ACE": 950000,
+        "Full Day Medium Car": 550000,
+        "Full Day HI ACE": 1550000,
+      };
+      
+      if (bookingResult.transport === "Yes" && bookingResult.transport_yes?.length > 0) {
+        bookingResult.transport_yes.forEach((t) => {
+          if (transportPrices[t]) {
+            total += transportPrices[t];
+          }
+        });
+      }
+
       const activityLabels = activities.map((act) => act.activity || 'unknown');
       console.log('activityLabels:', activityLabels);
       console.log('total', total);
       console.log('activities:', activities);
 
       await pb.collection('history_uab').create({
+        user_id: bookingResult.user_id,
         booking_id: bookingResult.booking_id,
         nama: bookingResult.nama,
         nomortlp: bookingResult.nomortlp,

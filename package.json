@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@google/genai": "^1.11.0",
     "cookie-parser": "^1.4.7",
@@ -17,5 +17,15 @@
     "express": "^5.1.0",
     "midtrans-client": "^1.4.3",
     "pocketbase": "^0.26.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mtridryn/PI-Backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mtridryn/PI-Backend/issues"
+  },
+  "homepage": "https://github.com/mtridryn/PI-Backend#readme",
+  "description": ""
 }
